@@ -8,6 +8,26 @@ export default class Senha {
         return opcao ? opcao.valor : false;
     }
 
+    static nenhumaOpcaoSelecionada(opcoes: OpcaoCaractere[]) {
+        return opcoes.every(opcao => !opcao.valor);
+    }
+
+    static calcularForca(tamanho: number, opcoes: OpcaoCaractere[]) {
+        const temNumeros = +Senha.opcoesTem(IdsCaracteres.NUMEROS, opcoes)
+        const temMaiusculos = +Senha.opcoesTem(IdsCaracteres.MAIUSCULAS, opcoes)
+        const temMinusculos = +Senha.opcoesTem(IdsCaracteres.MINUSCULAS, opcoes)
+        const temEspeciais = +Senha.opcoesTem(IdsCaracteres.ESPECIAIS, opcoes)
+        const qtdeTipos = temNumeros + temMaiusculos + temMinusculos + temEspeciais
+
+        if(tamanho < 8 || qtdeTipos < 2) {
+            return 1
+        } 
+        if(qtdeTipos === 4 && tamanho >= 10) {
+            return 3
+        }
+        return 2
+    }
+
     static gerarSenha(tamanho: number, opcoes: OpcaoCaractere[]) {
         let caracteresPossiveis = ""
 
@@ -22,9 +42,6 @@ export default class Senha {
         }
         if(Senha.opcoesTem(IdsCaracteres.ESPECIAIS, opcoes)) {
             caracteresPossiveis += "!@#$%^&*()_+-[]{}|;:,.<>?"
-        }
-        if(caracteresPossiveis.length === 0) {
-            return "Selecione pelo menos um tipo de caractere."
         }
         
         let senha = ""

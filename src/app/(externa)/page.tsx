@@ -1,13 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import opcoes from "@/data/OpcoesCaracteres";
 import CustomCheck from "../../components/CustomCheck";
 import Senha from "@/model/Senha";
+import ExibeSenha from "@/components/ExibeSenha";
+import ForcaSenha from "@/components/ForcaSenha";
 
 export default function Home() {
   const [tamanho, setTamanho] = useState<number>(8);
   const [tiposCaracteres, setTiposCaracteres] = useState(opcoes);
   const [senha, setSenha] = useState<string>("");
+  const [vazio, setVazio] = useState<boolean>(false);
+  const [forcaSenha, setForcaSenha] = useState<number>(3);
 
   const handlerCheckbox = (index: number) => {
     const newTipos = [...tiposCaracteres];
@@ -15,7 +19,17 @@ export default function Home() {
     setTiposCaracteres([...newTipos]);
   };
 
+  useEffect(() => {
+    setForcaSenha(Senha.calcularForca(tamanho, tiposCaracteres));
+  }, [tiposCaracteres, tamanho]);
+
   const gerarsenha = () => {
+    const nenhumaSelecionada = Senha.nenhumaOpcaoSelecionada(tiposCaracteres);
+    if (nenhumaSelecionada) {
+      setVazio(true);
+      return;
+    }
+    setVazio(false);
     const novaSenha = Senha.gerarSenha(tamanho, tiposCaracteres);
     setSenha(novaSenha);
   };
@@ -50,6 +64,7 @@ export default function Home() {
             />
           ))}
         </div>
+        <ForcaSenha forca={forcaSenha} />
         <button
           className={`
             text-white bg-blue-600 hover:bg-blue-500  text-lg font-bold w-full rounded p-2 mt-3 
@@ -58,7 +73,13 @@ export default function Home() {
         >
           Gerar Senha
         </button>
-        {senha}
+        {vazio ? (
+          <p className="flex justify-center text-red-500 text-sm mt-3">
+            Selecione pelo menos uma opção!
+          </p>
+        ) : (
+          <ExibeSenha senha={senha} />
+        )}
       </div>
     </main>
   );
